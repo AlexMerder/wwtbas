@@ -1,17 +1,18 @@
 const { difficultyModes } = require("./opts");
+const { ACTIONS } = require('./text');
 
 const generatedQuestion = async (topic, difficulty) => {
 
     let dif;
 
     switch (difficulty) {
-        case 'easy':
+        case ACTIONS.EASY:
             dif = 31;
             break;
-        case 'normal':
+        case ACTIONS.NORMAL:
             dif = 101;
             break;
-        case 'hardcore':
+        case ACTIONS.HARDCORE:
             dif = 1001;
             break;
         default:
@@ -25,25 +26,25 @@ const generatedQuestion = async (topic, difficulty) => {
     let correctAnswer = 0;
 
     switch (topic) {
-        case "addition":
+        case ACTIONS.ADDITION:
             question = `What is ${number1} + ${number2} ?`;
             correctAnswer = number1 + number2;
             break;
 
-        case 'subtraction':
+        case ACTIONS.SUBTRACTION:
             question = `What is ${number1} - ${number2} ?`;
             correctAnswer = number1 - number2;
             break;
 
-        case 'multiplication':
+        case ACTIONS.MULTIPLICATION:
             question = `What is ${number1} * ${number2} ?`;
             correctAnswer = number1 * number2;
             break;
 
-        case 'random':
-            const operations = ['addition', 'subtraction', 'multiplication'];
+        case ACTIONS.RANDOM:
+            const operations = [ACTIONS.ADDITION, ACTIONS.SUBTRACTION, ACTIONS.MULTIPLICATION];
             let randomOp = operations[Math.floor(Math.random() * operations.length)];
-            while (randomOp === 'random') {
+            while (randomOp === ACTIONS.RANDOM) {
                 randomOp = operations[Math.floor(Math.random() * operations.length)]
             }
             return generatedQuestion(randomOp, difficulty);
@@ -67,15 +68,15 @@ function generateIncorrectUniqueAnswer(correctAnswer, existingAnswers, difficult
     let offset;
     do {
         switch (difficulty) {
-            case 'easy':
+            case ACTIONS.EASY:
                 offset = Math.floor(Math.random() * 6) - 3;
                 uniqueAnswer = correctAnswer + offset;
                 break;
-            case 'normal':
+            case ACTIONS.NORMAL:
                 offset = Math.floor(Math.random() * 20) - 10;
                 uniqueAnswer = correctAnswer + offset;
                 break;
-            case 'hardcore':
+            case ACTIONS.HARDCORE:
                 offset = Math.floor(Math.random() * 61) - 30;
                 uniqueAnswer = correctAnswer + offset;
                 break;
@@ -84,17 +85,8 @@ function generateIncorrectUniqueAnswer(correctAnswer, existingAnswers, difficult
                 uniqueAnswer = correctAnswer + offset;
         }
     } while (existingAnswers.includes(uniqueAnswer) ||
-    uniqueAnswer === correctAnswer ||
-        uniqueAnswer < 0);
+    uniqueAnswer === correctAnswer);
     return uniqueAnswer;
 }
 
-const updateSessionActions = async (session, action) => {
-    if (session) {
-        const existingActions = session.actions || [];  // Make sure it's an array
-        const updatedActions = [...existingActions, action];
-        await session.update({ actions: updatedActions });
-    }
-};
-
-module.exports = { generatedQuestion, updateSessionActions };
+module.exports = { generatedQuestion };

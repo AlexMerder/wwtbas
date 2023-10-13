@@ -36,9 +36,9 @@ const difficultyModes = {
     parse_mode: 'Markdown',
     reply_markup: {
         inline_keyboard: [
-            [{ text: "easy", callback_data: 'easy_mode' }],
-            [{ text: "normal", callback_data: 'normal_mode' }],
-            [{ text: "hardcore", callback_data: 'hardcore_mode' }],
+            [{ text: "easy", callback_data: 'easy' }],
+            [{ text: "normal", callback_data: 'normal' }],
+            [{ text: "hardcore", callback_data: 'hardcore' }],
             [{ text: "Back", callback_data: 'back' }]
         ]
     }

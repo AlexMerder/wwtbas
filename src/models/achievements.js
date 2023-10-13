@@ -4,7 +4,11 @@ const sequelize = require('../config/sequelize');
 class Achievements extends Model { }
 
 Achievements.init({
-    userId: DataTypes.STRING,
+    userId: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        primaryKey: true
+    },
     game_mode: DataTypes.STRING,
     difficulty: DataTypes.STRING,
     score: DataTypes.INTEGER

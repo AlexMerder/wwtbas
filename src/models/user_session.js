@@ -11,12 +11,7 @@ UserSession.init({
     },
     userName: DataTypes.STRING,
     difficulty: DataTypes.STRING,
-    topic: DataTypes.STRING,
-    actions: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
-        allowNull: true,
-        defaultValue: []
-    }
+    topic: DataTypes.STRING
 }, {
     sequelize,
     modelName: 'user_session',

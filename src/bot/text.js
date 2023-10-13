@@ -21,6 +21,27 @@ Your task is to get the highest number of points.
 P.S. Good luck!
 `;
 
-const selectDifficulty = `After selecting *DIFFICULTY* 🏆 the *TIMER* 🕔 will start and the *GAME* ▶️ will start. Select the difficulty level :`
+const selectDifficulty = `After selecting *DIFFICULTY* 🏆 the *TIMER* 🕔 will start and the *GAME* ▶️ will start. Select the difficulty level :`;
 
-module.exports= {rules, selectDifficulty};
+
+const ACTIONS = {
+    NEW_GAME: 'new_game',
+    PLACEHOLDER: 'placeholder',
+    PAY_RESPECT: 'pay_respect',
+    ACHIEVEMENTS: 'achievements',
+    BACK: 'back',
+    GET_STARTED: 'get_started',
+    RULES: 'rules',
+    ADDITION: 'addition',
+    SUBTRACTION: 'subtraction',
+    MULTIPLICATION: 'multiplication',
+    RANDOM: 'random',
+    EASY: 'easy',
+    NORMAL: 'normal',
+    HARDCORE: 'hardcore',
+    CORRECT_ANSWER: 'correct_answer',
+    INCORRECT_ANSWER: 'incorrect_answer'
+};
+
+
+module.exports = { rules, selectDifficulty, ACTIONS };
