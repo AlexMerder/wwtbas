@@ -1,156 +1,186 @@
 const { bot } = require('./src/bot/bot.js');
 const { UserSession } = require('./src/models/user_session.js');
 const { newGame, rulesAndDonation, modeList, difficultyModes, back, payRespect, placeholder } = require('./src/bot/opts.js');
-const { generatedQuestion, updateSessionActions } = require('./src/bot/commands.js');
-const { rules, selectDifficulty } = require('./src/bot/text.js');
+const { generatedQuestion } = require('./src/bot/commands.js');
+const { rules, selectDifficulty, ACTIONS } = require('./src/bot/text.js');
 
 bot.onText(/\/start/, async (msg) => {
-    console.log("message: ", msg);
-    const chatId = msg.chat.id;
-    const userName = msg.from.username || "User";
 
-    let session = await UserSession.findOne({ where: { chatId: chatId } });
-    if (session) {
-        session.actions = [];
-        session.topic = null;
-        session.difficulty = null;
-        await session.save();
-    } else {
-        await UserSession.create({ chatId: chatId, userName: userName });
+    try {
+        console.log("Message: ", msg);
+        const chatId = msg.chat.id;
+        const userName = msg.from.username || "User";
+        await findOrCreateUser(chatId, userName);
+        await sendMessage(chatId, `Welcome 👋*${userName}* to the game "*Who wants to be smart?*"`, newGame);
+    } catch (error) {
+        console.log('Error: ' + error);
     }
-    await bot.sendMessage(chatId, 'Welcome 👋*' + userName + '* to the game "*Who wants to be smart?*"', newGame);
+
 });
 
 bot.on('callback_query', async (callbackQuery) => {
 
-
     try {
-        console.log("callBack: ", callbackQuery);
+        console.log("UserName: ", callbackQuery.from.username);
+        console.log("message: ", callbackQuery.message.text);
+
 
         const chatId = callbackQuery.from.id;
         const userName = callbackQuery.from.username;
         const action = callbackQuery.data;
 
-        let session = await UserSession.findOne({ where: { chatId: chatId } });
+        let session = await findOrCreateUser(chatId, userName);
+        // console.log('User session: ', session);
 
-        if (!session) {
-            session = await UserSession.create({ chatId: chatId, userName: userName });
-        }
-
-        await updateSessionActions(session, action);
-        await session.save();
-
-        console.log('user session: ' + session.toJSON());
         switch (action) {
-            case 'new_game':
-                await bot.sendMessage(chatId, '*' + userName + '*, rules are simple - answer on questions right! ', rulesAndDonation);
+            case ACTIONS.NEW_GAME:
+            case ACTIONS.BACK:
+                await sendMessage(chatId, `*${userName}*, rules are simple - answer on questions right!`, rulesAndDonation);
                 break;
 
-            case 'pay_respect':
-                //todo implement telegram payments api 
-                await bot.sendMessage(chatId, 'In development...', back);
+            case ACTIONS.GET_STARTED:
+                await sendMessage(chatId, 'Pick a game mode: ', modeList);
                 break;
 
-            case 'achievements':
-                //todo implement request to the db and get all achievements
-                await bot.sendMessage(chatId, 'In development...', back);
+            case ACTIONS.PLACEHOLDER:
+            case ACTIONS.PAY_RESPECT:
+            case ACTIONS.ACHIEVEMENTS:
+                await inDevelopment(chatId);
                 break;
 
-            case 'back':
-                await bot.sendMessage(chatId, '*' + userName + '*, rules are simple - answer on questions right! ', rulesAndDonation);
+            case ACTIONS.RULES:
+                await sendMessage(chatId, rules, back);
                 break;
 
-            case 'get_started':
-                //todo initiate the game and start to write state of this game
-                await bot.sendMessage(chatId, 'Pick a game mode: ', modeList);
+            case ACTIONS.ADDITION:
+            case ACTIONS.SUBTRACTION:
+            case ACTIONS.MULTIPLICATION:
+            case ACTIONS.RANDOM:
+                await setTopicAndSave(session, action);
+                await sendMessage(chatId, selectDifficulty, difficultyModes);
                 break;
 
-            case 'rules':
-                await bot.sendMessage(chatId, rules, back);
-                break;
-
-            case 'addition':
-            case 'subtraction':
-            case 'multiplication':
-            case 'random':
-                switch (action) {
-                    case 'addition':
-                        topic = 'addition';
-                        session.set({ topic: topic });
-                        await session.save();
-                        break;
-                    case 'subtraction':
-                        topic = 'subtraction';
-                        session.set({ topic: topic })
-                        await session.save();
-                        break;
-                    case 'multiplication':
-                        topic = 'multiplication';
-                        session.set({ topic: topic })
-                        await session.save();
-                        break;
-                    case 'random':
-                        topic = 'random';
-                        session.set({ topic: topic })
-                        await session.save();
-                        break;
-                    default:
-                        topic = "";
-                }
-                await bot.sendMessage(chatId, selectDifficulty, difficultyModes);
-                break;
-
-            case 'easy_mode':
-            case 'normal_mode':
-            case 'hardcore_mode':
-                switch (action) {
-                    case 'easy_mode':
-                        difficulty = 'easy';
-                        session.set({ difficulty: difficulty });
-                        await session.save();
-                        break;
-                    case 'normal_mode':
-                        difficulty = 'normal';
-                        session.set({ difficulty: difficulty });
-                        await session.save();
-                        break;
-                    case 'hardcore_mode':
-                        difficulty = 'hardcore';
-                        session.set({ difficulty: difficulty });
-                        await session.save();
-                        break;
-                }
-
-                console.log('Session : ' + session.dataValues);
-
-                if (!session.topic || !session.difficulty) {
-                    await bot.sendMessage(chatId, 'Welcome *' + userName + '* to the game "*Who wants to be smart*" 👋', newGame);
-                }
-
-                const questionData = await generatedQuestion(session.topic, session.difficulty);
-                console.log(questionData);
-                const { question, correctAnswer, uniqueIncorrectAnswers } = questionData;
-
-                console.log(uniqueIncorrectAnswers);
-
-                const game = {
-                    reply_markup: {
-                        inline_keyboard: [
-                            [{ text: correctAnswer.toString(), callback_data: 'pay_respect' }],
-                            [{ text: uniqueIncorrectAnswers[0].toString(), callback_data: 'pay_respect' }],
-                            [{ text: uniqueIncorrectAnswers[1].toString(), callback_data: 'pay_respect' }],
-                            [{ text: uniqueIncorrectAnswers[2].toString(), callback_data: 'pay_respect' }]
-                        ]
+            case ACTIONS.EASY:
+            case ACTIONS.NORMAL:
+            case ACTIONS.HARDCORE:
+                await setDifficulty(session, action);
+                try {
+                    if (!session.topic || !session.difficulty) {
+                        await sendMessage(chatId, `Welcome 👋*${userName}* to the game "*Who wants to be smart?*"`, newGame);
+                    } else {
+                        await sendGeneratedQuestion(session, chatId);
                     }
-                };
-
-                await bot.sendMessage(chatId, question, game);
+                } catch (error) {
+                    
+                }
+                
                 break;
 
+            case ACTIONS.CORRECT_ANSWER:
+                sendMessage(chatId, `Correct!`, {})
+                    .then(() => {
+                        return sendGeneratedQuestion(session, chatId);
+                    })
+                    .catch(error => {
+                        console.log('Error: ', error);
+                    });
+                break;
+            case ACTIONS.INCORRECT_ANSWER:
+                sendMessage(chatId, `Incorrect!`, {})
+                    .then(() => {
+                        return sendGeneratedQuestion(session, chatId);
+                    })
+                    .catch(error => {
+                        console.log('Error: ', error);
+                    });
+                break;
             default:
-                await bot.sendMessage(chatId, 'Welcome *' + userName + '* to the game "*Who wants to be smart*" 👋', newGame);
+                await sendMessage(chatId, `Welcome 👋*${userName}* to the game "*Who wants to be smart?*"`, newGame);
         }
     } catch (error) {
-        console.log('Error: ' + error);
+        console.log('Error: ', error);
     }
 });
+
+async function setDifficulty(session, difficulty) {
+    try {
+        session.difficulty = difficulty;
+        await session.save();
+        console.log('Difficulty has been set: ' + difficulty);
+    } catch (error) {
+        console.log('Error in db: ', error);
+        await sendMessage(chatId, `Welcome 👋*${userName}* to the game "*Who wants to be smart?*"`, newGame);
+    }
+}
+
+async function setTopicAndSave(session, topic) {
+    try {
+        session.topic =  topic;
+        await session.save();
+        console.log('Topic has been set: ' + topic);
+    } catch (error) {
+        console.log('Error in db: ', error);
+        await sendMessage(chatId, `Welcome 👋*${userName}* to the game "*Who wants to be smart?*"`, newGame);
+    }
+}
+
+async function findOrCreateUser(chatId, userName) {
+    try {
+        let session = await UserSession.findOne({ where: { chatId: chatId } });
+        if (!session) {
+            session = await UserSession.create({ chatId, userName });
+            return session;
+        }
+        await session.save();
+        return session;
+    } catch (error) {
+        console.log('Error in db: ', error);
+        await sendMessage(chatId, `Welcome 👋*${userName}* to the game "*Who wants to be smart?*"`, newGame);
+    }
+}
+
+async function sendMessage(chatId, message, options) {
+    try {
+        return bot.sendMessage(chatId, message, options);
+
+    } catch (error) {
+        console.log('Error while sending message via telegram: ', error);
+    }
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+async function sendGeneratedQuestion(session, chatId) {
+    const questionData = await generatedQuestion(session.topic, session.difficulty);
+    const { question, correctAnswer, uniqueIncorrectAnswers } = questionData;
+
+    const allAnswers = [
+        { answer: correctAnswer, callback_data: 'correct_answer' },
+        ...uniqueIncorrectAnswers.map(answer => ({ answer, callback_data: 'incorrect_answer' }))
+    ];
+
+    const shuffledAnswers = shuffleArray([...allAnswers]);
+
+    console.log("shuffledAnswers: " + shuffledAnswers);
+    const gameQuestion = {
+        reply_markup: {
+            inline_keyboard: [
+                ...shuffledAnswers.map(answerObj => [
+                    { text: answerObj.answer.toString(), callback_data: answerObj.callback_data }
+                ]),
+                [{ text: "Finish", callback_data: 'newGame' }]
+            ]
+        }
+    };
+    return sendMessage(chatId, question, gameQuestion);
+}
+
+async function inDevelopment(chatId) {
+    return sendMessage(chatId, 'In development...', back);
+}
