@@ -63,6 +63,15 @@ const tryAgain = {
     }
 };
 
+const playAgain = {
+    parse_mode: 'Markdown',
+    reply_markup: {
+        inline_keyboard: [
+            [{ text: "Play again ⬇️", callback_data: 'back' }]
+        ]
+    }
+};
+
 const payRespect = {
     parse_mode: 'Markdown',
     reply_markup: {
@@ -82,4 +91,4 @@ const placeholder = {
 };
 
 
-module.exports = { newGame, rulesAndDonation, modeList, difficultyModes, back, payRespect, placeholder, tryAgain };
+module.exports = { newGame, rulesAndDonation, modeList, difficultyModes, back, payRespect, placeholder, tryAgain, playAgain };

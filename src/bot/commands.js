@@ -1,5 +1,5 @@
 const { bot } = require('./bot');
-const { difficultyModes, back, tryAgain } = require('./opts.js');
+const { difficultyModes, back, tryAgain, playAgain } = require('./opts.js');
 const { ACTIONS } = require('./text.js');
 
 const generatedQuestion = async (topic, difficulty, questionNumber, score) => {
@@ -146,12 +146,11 @@ function getTimeout(difficulty) {
 
 async function sendGeneratedQuestion(session, chatId) {
     if (session.questionNumber > 15) {
-        return sendMessage(chatId, `Your result: ${session.score}`, back);
+        return sendMessage(chatId, `Your result is ${session.score}, congratulations! 🥇`, playAgain);
     }
     if (session.score < 0) {
-        sendMessage(chatId, 'Game Over! Your score less than 0 😞\nTry again?🙂', tryAgain);
         console.log(`Game Over!: ${session.userName}`);
-        return;
+        return sendMessage(chatId, 'Game Over! Your score less than 0 😞\nTry again?🙂', tryAgain);
     }
 
     const questionData = await generatedQuestion(session.topic, session.difficulty, session.questionNumber, session.score);
