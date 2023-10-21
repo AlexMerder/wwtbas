@@ -86,12 +86,13 @@ bot.on('callback_query', async (callbackQuery) => {
                 break;
 
             case ACTIONS.CORRECT_ANSWER:
+                clearTimeout(session.timerId);
+
                 sendMessage(chatId, `Correct!`, {})
                     .then(() => {
                         if (session.answered) {
                             return;
                         }
-                        clearTimeout(session.timerId);
                         session.answered = true;
                         session.questionNumber++;
                         session.score += session.price;
@@ -101,15 +102,18 @@ bot.on('callback_query', async (callbackQuery) => {
                     })
                     .catch(error => {
                         console.log('Error: ', error);
+                    }).then(() => {
+                        console.log(`Correct answer, ${session.userName}`)
                     });
                 break;
             case ACTIONS.INCORRECT_ANSWER:
+                clearTimeout(session.timerId);
+
                 sendMessage(chatId, `Incorrect!`, {})
                     .then(() => {
                         if (session.answered) {
                             return;
                         }
-                        clearTimeout(session.timerId);
                         session.answered = true;
                         session.questionNumber++;
                         session.score -= session.fine;
@@ -119,6 +123,8 @@ bot.on('callback_query', async (callbackQuery) => {
                     })
                     .catch(error => {
                         console.log('Error: ', error);
+                    }).then(() => {
+                        console.log(`Incorrect answer, ${session.userName}`)
                     });
                 break;
             default:
