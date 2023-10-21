@@ -23,10 +23,10 @@ const modeList = {
     parse_mode: 'Markdown',
     reply_markup: {
         inline_keyboard: [
-            [{ text: "addition➕", callback_data: 'addition' }],
-            [{ text: "subtraction", callback_data: 'subtraction' }],
-            [{ text: "multiplication*️⃣", callback_data: 'multiplication' }],
-            [{ text: "random🎲", callback_data: 'random' }],
+            [{ text: "addition ➕", callback_data: 'addition' }],
+            [{ text: "subtraction ➖", callback_data: 'subtraction' }],
+            [{ text: "multiplication ✖️", callback_data: 'multiplication' }],
+            [{ text: "random 🎲", callback_data: 'random' }],
             [{ text: "Back", callback_data: 'back' }]
         ]
     }
