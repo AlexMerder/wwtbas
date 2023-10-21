@@ -55,7 +55,7 @@ const generatedQuestion = async (topic, difficulty, questionNumber, score) => {
             while (randomOp === ACTIONS.RANDOM) {
                 randomOp = operations[Math.floor(Math.random() * operations.length)]
             }
-            return generatedQuestion(randomOp, difficulty);
+            return generatedQuestion(randomOp, difficulty, questionNumber, score);
         default:
             console.error('topic: ', topic);
             console.error('difficultyModes: ', difficultyModes);
