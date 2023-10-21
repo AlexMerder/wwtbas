@@ -23,10 +23,10 @@ const modeList = {
     parse_mode: 'Markdown',
     reply_markup: {
         inline_keyboard: [
-            [{ text: "addition➕", callback_data: 'addition' }],
-            [{ text: "subtraction", callback_data: 'subtraction' }],
-            [{ text: "multiplication*️⃣", callback_data: 'multiplication' }],
-            [{ text: "random🎲", callback_data: 'random' }],
+            [{ text: "addition ➕", callback_data: 'addition' }],
+            [{ text: "subtraction ➖", callback_data: 'subtraction' }],
+            [{ text: "multiplication ✖️", callback_data: 'multiplication' }],
+            [{ text: "random 🎲", callback_data: 'random' }],
             [{ text: "Back", callback_data: 'back' }]
         ]
     }
@@ -54,6 +54,24 @@ const back = {
     }
 };
 
+const tryAgain = {
+    parse_mode: 'Markdown',
+    reply_markup: {
+        inline_keyboard: [
+            [{ text: "Try again ⬇️", callback_data: 'back' }]
+        ]
+    }
+};
+
+const playAgain = {
+    parse_mode: 'Markdown',
+    reply_markup: {
+        inline_keyboard: [
+            [{ text: "Play again ⬇️", callback_data: 'back' }]
+        ]
+    }
+};
+
 const payRespect = {
     parse_mode: 'Markdown',
     reply_markup: {
@@ -73,4 +91,4 @@ const placeholder = {
 };
 
 
-module.exports = { newGame, rulesAndDonation, modeList, difficultyModes, back, payRespect, placeholder };
+module.exports = { newGame, rulesAndDonation, modeList, difficultyModes, back, payRespect, placeholder, tryAgain, playAgain };
