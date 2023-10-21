@@ -34,24 +34,24 @@ bot.on('callback_query', async (callbackQuery) => {
             case ACTIONS.NEW_GAME:
             case ACTIONS.BACK:
                 resetData(session);
-                console.log('Button clicked: ', action);
+                console.log(`Button clicked by ${session.userName}: `, action);
                 await sendMessage(chatId, `*${userName}*, rules are simple - answer on questions right!`, rulesAndDonation);
                 break;
 
             case ACTIONS.GET_STARTED:
-                console.log('Button clicked: ', action);
+                console.log(`Button clicked by ${session.userName}: `, action);
                 await sendMessage(chatId, 'Pick a game mode: ', modeList);
                 break;
 
             case ACTIONS.PLACEHOLDER:
             case ACTIONS.PAY_RESPECT:
             case ACTIONS.ACHIEVEMENTS:
-                console.log('Button clicked: ', action);
+                console.log(`Button clicked by ${session.userName}: `, action);
                 await inDevelopment(chatId);
                 break;
 
             case ACTIONS.RULES:
-                console.log('Button clicked: ', action);
+                console.log(`Button clicked by ${session.userName}: `, action);
                 await sendMessage(chatId, rules, back);
                 break;
 
@@ -59,18 +59,18 @@ bot.on('callback_query', async (callbackQuery) => {
             case ACTIONS.SUBTRACTION:
             case ACTIONS.MULTIPLICATION:
             case ACTIONS.RANDOM:
-                console.log('Button clicked: ', action);
+                console.log(`Button clicked by ${session.userName}: `, action);
                 await setTopicAndSave(session, action);
-                console.log('Topic set: ', action);
+                console.log(`Topic set by ${session.userName}: `, action);
                 await sendMessage(chatId, selectDifficulty, difficultyModes);
                 break;
 
             case ACTIONS.EASY:
             case ACTIONS.NORMAL:
             case ACTIONS.HARDCORE:
-                console.log('Button clicked: ', action);
+                console.log(`Button clicked by ${session.userName}: `, action);
                 await setDifficulty(session, action);
-                console.log('Topic set: ', action);
+                console.log(`Topic set by ${session.userName}: `, action);
                 try {
                     if (!session.topic || !session.difficulty) {
                         await sendMessage(chatId, `Welcome 👋*${userName}* to the game "*Who wants to be smart?*"`, newGame);

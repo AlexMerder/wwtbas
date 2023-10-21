@@ -1,5 +1,5 @@
 const { bot } = require('./bot');
-const { difficultyModes, back } = require('./opts.js');
+const { difficultyModes, back, tryAgain } = require('./opts.js');
 const { ACTIONS } = require('./text.js');
 
 const generatedQuestion = async (topic, difficulty, questionNumber, score) => {
@@ -145,9 +145,13 @@ function getTimeout(difficulty) {
 }
 
 async function sendGeneratedQuestion(session, chatId) {
-
     if (session.questionNumber > 15) {
         return sendMessage(chatId, `Your result: ${session.score}`, back);
+    }
+    if (session.score < 0) {
+        sendMessage(chatId, 'Game Over! Your score less than 0 😞\nTry again?🙂', tryAgain);
+        console.log(`Game Over!: ${session.userName}`);
+        return;
     }
 
     const questionData = await generatedQuestion(session.topic, session.difficulty, session.questionNumber, session.score);
@@ -165,7 +169,7 @@ async function sendGeneratedQuestion(session, chatId) {
 
     const shuffledAnswers = shuffleArray([...allAnswers]);
 
-    console.log("Shuffled answers for question 🔽: ", shuffledAnswers);
+    console.log(`Shuffled answers for user ${session.userName} 🔽: `, shuffledAnswers);
     const gameQuestion = {
         reply_markup: {
             inline_keyboard: [
@@ -187,7 +191,7 @@ async function sendGeneratedQuestion(session, chatId) {
             return;
         }
         session.answered = true;
-        sendMessage(chatId, 'Time expired!', back);
+        sendMessage(chatId, 'Time expired!\nTry again?🙂', back);
         console.log(`Time expired: ${session.userName}`);
     }, timeLimit);
 }
